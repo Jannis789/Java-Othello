@@ -224,8 +224,9 @@ public class GameAction {
         List<int[]> validDirection = new ArrayList<>();
         List<int[]> changedPositions = new ArrayList<>(); // Declare and initialize the changedPositions list
         int[] position = new int[2];
-        boolean reachedBlackTile = false;
+        boolean reachedPlayerTile = false;
         changedPositions.clear();
+        boolean reachedEnemyTile = false;
         for (int i = 0; i < combinedList.size(); i++) {
             int[][] entry = combinedList.get(i);
             position = entry[0];
@@ -247,13 +248,17 @@ public class GameAction {
                 }
     
                 if (isPlayerTile(newPositionArray, player)) {
-                    tempPlayerPosition[0] = newX;
-                    tempPlayerPosition[1] = newY;
-                    validDirection.add(new int[] { direction[0], direction[1] });
-                    stopLoop = true;
-                    reachedBlackTile = true;
+                    if (reachedEnemyTile) {
+                        tempPlayerPosition[0] = newX;
+                        tempPlayerPosition[1] = newY;
+                        validDirection.add(new int[] { direction[0], direction[1] });
+                        stopLoop = true;
+                        reachedPlayerTile = true;
+                    }
                 }
-    
+                if (isEnemyTile(newPositionArray, player)){
+                    reachedEnemyTile = true;
+                }
                 if (isTileBlank(newPositionArray)) {
                     stopLoop = true;
                 }
@@ -276,7 +281,7 @@ public class GameAction {
 
         }
         changedPositions.add(position);
-        if (reachedBlackTile) {
+        if (reachedPlayerTile) {
             if (player == 0) {
                 for (int[] pos : changedPositions) {
                     // Entferne die Position aus beiden Listen
@@ -285,7 +290,6 @@ public class GameAction {
                     // Füge die Position der Schwarzen Liste hinzu
                     Main.blackTilesPositionList.add(pos);
                 }
-                Main.nextTurn();
             } else if (player == 1) {
                 for (int[] pos : changedPositions) {
                     // Entferne die Position aus beiden Listen
@@ -294,9 +298,8 @@ public class GameAction {
                     // Füge die Position der Weißen Liste hinzu
                     Main.whiteTilesPositionList.add(pos);
                 }
-            Main.nextTurn();
         }
-        
+        Main.nextTurn();
     }
 }
     private static void deleteElementFromArrayList(List<int[]> combinedList, int[] searchedElement) {
